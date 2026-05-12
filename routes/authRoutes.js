@@ -8,7 +8,17 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { model } = require("mongoose");
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+
+
+
+
+//get 
+router.get("/",(req,res)=>{
+    res.json({
+        message:"User route is working..."
+    })
+})
+
 
 //creating register routes
 router.post('/register', async (req,res)=>{
@@ -49,7 +59,7 @@ router.post('/login', async (req,res)=>{
        //else 
         const token = jwt.sign({
             userId:user._id
-        },JWT_SECRET_KEY);
+        },process.env.JWT_SECRET_KEY);
 
         //when everything is fine then send this 
         res.json({
@@ -64,4 +74,6 @@ router.post('/login', async (req,res)=>{
     }
 })
 //we created router and added all routes into it so we export it
+
+
 module.exports = router;
