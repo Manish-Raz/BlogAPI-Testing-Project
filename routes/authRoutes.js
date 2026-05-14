@@ -8,10 +8,19 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { model } = require("mongoose");
+const nodemailer = require('nodemailer');
 
 
 
 
+//some config for nodemailer--this is owner emails this will send otp to everyone
+const transporter = nodemailer.createTransport({
+    service:'gmail',
+    auth:{
+        user:'rajakaryan710@gmail.com',
+        pass:'ezaogstiaqhkdoxk'
+    }
+})
 //get 
 router.get("/",(req,res)=>{
     res.json({
@@ -73,6 +82,93 @@ router.post('/login', async (req,res)=>{
 
     }
 })
+
+router.post("/sendotp", async (req,res)=>{
+    const {email}= req.body;
+    //generating random 6 digit otp 
+    const otp = Math.floor(100000 + Math.random()* 900000);
+    try{
+        const mailOptions ={
+            from:process.env.COMPANY_EMAIL,
+            to:email,
+            subject:"OTP for verification",
+            text:`Your OTP for verification is ${otp}`
+        }
+
+        transporter.sendMail(mailOptions, async (err, info)=>{
+            if(err){
+                res.status(500).json({
+                    message:err.message
+                });
+            }
+            else{
+                //saving opt to specific user in db
+                const user = await User.findOne({email});
+                if(!user){
+                    return res.status(400).json({
+                        message:'User not found'
+
+                    });
+                }
+
+                user.otp = otp;
+                await user.save();
+                console.log(otp);
+
+                
+                res.json({
+                    message:"OTP sent successfully"
+                });
+            }
+        })
+    }
+    catch(err){
+        res.status(500).json({
+            message:err.message
+        });
+    }
+
+})
+
+//changing password when it is done we remove otp 
+router.post('/changepassword', async (req, res)=>{
+    const {email, otp, newpassword}  = req.body;
+
+    try{
+        const user =await  User.findOne({email});
+        if(!user){
+            return res.status(404).json({
+        message: "User not found"
+    });
+        }
+
+        //about invalid otp
+        if(user.otp != otp){
+           return res.status(400).json({
+                message:"Invalid OTP"
+            });
+        }
+
+        //when everything is great user is authenicated then we change the password
+        user.password = newpassword;
+        user.otp = null;
+        await user.save();
+
+        res.json({
+            message:"Password changed successfully"
+        });
+    }
+    catch(err){
+        res.status(500).json({
+           message:err.message
+        })
+    }
+})
+
+
+
+
+
 //we created router and added all routes into it so we export it
 
 
