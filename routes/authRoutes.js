@@ -173,3 +173,12 @@ router.post('/changepassword', async (req, res)=>{
 
 
 module.exports = router;
+
+
+
+
+/*{
+    "username": "Neha Ydav",
+    "email": "manrajaaaak3456@gmail.com",
+    "password": "123456789manish"
+}*/
