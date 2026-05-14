@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt')
 
 //express provides mini route handler that organize routes separately from main app. Instead of writing all routes in app.js. dev creates routers like userRouter, authRouter, etc to keep code clean and modular
 //routers make the project easier to manage, scale, and maintain 
-
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { model } = require("mongoose");
@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
     service:'gmail',
     auth:{
         user:'rajakaryan710@gmail.com',
-        pass:'ezaogstiaqhkdoxk'
+        pass:process.env.COMPANY_PASSWORD
     }
 })
 //get 
